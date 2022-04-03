@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import collections
 from typing import Dict
 
 from shopping_cart_interface import IShoppingCart
@@ -20,10 +21,10 @@ class ShoppingCart(IShoppingCart):
         else:
             self._contents[item_type] = self._contents[item_type] + number
 
-    def print_receipt(self):
-
+    def print_receipt(self, price_location = 0): # added parameter which can be either 1, 2 or 3 to decide location of price on receipt
         total_cost = 0
         for item_key, item_amount in self._contents.items():
+            
             price = self.pricer.get_price(item_key) * item_amount
             price_string = str(price)
             if price > 99:
@@ -37,7 +38,10 @@ class ShoppingCart(IShoppingCart):
                 else:
                     cent = price_string
                 price_string = "€{}.{}".format(euro, cent)
-            print("{item_key} - {item_amount} - {price}".format(item_key = item_key, item_amount = item_amount, price = price_string))
+            location_list = collections.deque([item_key, item_amount, price_string])
+            location_list.rotate(price_location)
+            location_list_final = list(location_list)
+            print("{item_key} - {item_amount} - {price}".format(item_key = location_list_final[0], item_amount = location_list_final[1], price = location_list_final[2]))
             total_cost += price
 
         total_cost_string = str(total_cost)
